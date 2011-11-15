@@ -1,0 +1,148 @@
+--- b	2011-11-15 12:57:09.000000000 +0100
++++ a	2011-11-15 12:47:48.000000000 +0100
+@@ -1,9 +1,9 @@
+	#...
+ 	leaq	16(%rsp), %rdi
+ 	call	_ZN5Timer5startEv
+-	movq	224(%rsp), %rdi
+-	leaq	284(%rsp), %rdx
++	leaq	224(%rsp), %rdi
+ 	movl	$9999, %esi
+-	call	_ZNK4List2atEmRj.isra.4
++	call	_ZNK4ListixEm
++	mov	(%rax), %eax
++	addq	%rax, %rbx
+-	mov	284(%rsp), %ebp
+ 	leaq	16(%rsp), %rdi
+ 	call	_ZN5Timer4stopEv
+	#...
+
+
+-_ZNK4List2atEmRj.isra.4:         #List::at
+-	xorl	%eax, %eax
+-	testq	%rdi, %rdi
+-	je	.L7
+-	xorl	%eax, %eax
++_ZNK4ListixEm:                   #List::operator[], obe jsou vicemene stejne dlouhe, pokud nenastane exception
++	pushq	%rbx
++	subq	$32, %rsp
++	movq	(%rdi), %rax
++	testq	%rax, %rax
++	je	.L51
++	xorl	%edx, %edx
+ 	testq	%rsi, %rsi
+-	jne	.L9
+-	jmp	.L8
+-.L10:
+-	addq	$1, %rax
+-	cmpq	%rax, %rsi
+-	je	.L8
+-.L9:
+-	movq	8(%rdi), %rdi
+-	testq	%rdi, %rdi
+-	jne	.L10
+-	xorl	%eax, %eax
+-.L7:
+-	rep
+-	ret
+-.L8:
+-	movl	(%rdi), %eax
+-	movl	%eax, (%rdx)
+-	movl	$1, %eax
++	je	.L52
++.L53:
++	movq	8(%rax), %rax
++	testq	%rax, %rax
++	je	.L51
++	addq	$1, %rdx
++	cmpq	%rdx, %rsi
++	jne	.L53
++.L52:
++	addq	$32, %rsp
++	popq	%rbx
+ 	ret
++
++               #throw:
++.L51:
++	movl	$16, %edi
++	call	__cxa_allocate_exception
++	leaq	31(%rsp), %rdx
++	leaq	16(%rsp), %rdi
++	movl	$.LC2, %esi
++	movq	%rax, %rbx
++	call	_ZNSsC1EPKcRKSaIcE
++	leaq	16(%rsp), %rsi
++	movq	%rbx, %rdi
++	call	_ZN2ExC1ERKSs
++	leaq	16(%rsp), %rdi
++	call	_ZNSsD1Ev
++	movl	$_ZN2ExD1Ev, %edx
++	movl	$_ZTI2Ex, %esi
++	movq	%rbx, %rdi
++	call	__cxa_throw
++.L61:
++	movq	%rax, %rdi
++.L57:
++	cmpq	$-1, %rdx
++	je	.L58
++	call	_Unwind_Resume
++.L60:
++	leaq	16(%rsp), %rdi
++	movq	%rax, 8(%rsp)
++	movq	%rdx, (%rsp)
++	call	_ZNSsD1Ev
++	movq	8(%rsp), %rax
++	movq	(%rsp), %rdx
++.L56:
++	movq	%rbx, %rdi
++	movq	%rax, 8(%rsp)
++	movq	%rdx, (%rsp)
++	call	__cxa_free_exception
++	movq	8(%rsp), %rax
++	movq	(%rsp), %rdx
++	movq	%rax, %rdi
++	jmp	.L57
++.L59:
++	jmp	.L56
++.L58:
++	call	__cxa_call_unexpected
++	.section	.gcc_except_table
++	.align 4
++	.byte	0xff
++	.byte	0x3
++	.uleb128 .LLSDATT1079-.LLSDATTD1079
++	.byte	0x1
++	.uleb128 .LLSDACSE1079-.LLSDACSB1079
++	.uleb128 .LEHB8-.LFB1079
++	.uleb128 .LEHE8-.LEHB8
++	.uleb128 .L59-.LFB1079
++	.uleb128 0x3
++	.uleb128 .LEHB9-.LFB1079
++	.uleb128 .LEHE9-.LEHB9
++	.uleb128 .L60-.LFB1079
++	.uleb128 0x3
++	.uleb128 .LEHB10-.LFB1079
++	.uleb128 .LEHE10-.LEHB10
++	.uleb128 .L61-.LFB1079
++	.uleb128 0x1
++	.uleb128 .LEHB11-.LFB1079
++	.uleb128 .LEHE11-.LEHB11
++	.uleb128 0
++	.uleb128 0
++	.byte	0x7f
++	.byte	0
++	.byte	0
++	.byte	0x7d
++	.align 4
++	.long	_ZTI2Ex
++	.byte	0x1
++	.byte	0
++
++
++	# catch blok:
++
++	movq	%rax, %rdi
++	addl	$1, %r12d
++	call	__cxa_begin_catch
++	call	__cxa_end_catch
++	jmp	.L88        #skok zpet na kod nasledujici catch

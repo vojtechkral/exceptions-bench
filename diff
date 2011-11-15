@@ -1,0 +1,166 @@
+--- b	2011-11-12 01:50:35.000000000 +0100
++++ a	2011-11-12 01:54:16.000000000 +0100
+@@ -1,49 +1,134 @@
+  #...
+ 	call	_ZN5Timer5startEv
+-	leaq	-292(%rbp), %rdx
+ 	leaq	-128(%rbp), %rax
+ 	movl	$9999, %esi
+ 	movq	%rax, %rdi
+-	call	_ZNK4List2atEmRj
+-	movl	-292(%rbp), %eax
++	call	_ZNK4ListixEm
++	movl	(%rax), %eax
+ 	mov	%eax, %eax
+ 	addq	%rax, -32(%rbp)
+ 	leaq	-336(%rbp), %rax
+ 	movq	%rax, %rdi
+ 	call	_ZN5Timer4stopEv
+  #...
+
+
+-_ZNK4List2atEmRj:            #List::at()        - verze bez exceptions
++_ZNK4ListixEm:               #List::operator[]  - verze s  exceptions
+ 	pushq	%rbp
+ 	movq	%rsp, %rbp
++	pushq	%r13                  #exception handling prolog
++	pushq	%r12
++	pushq	%rbx
++	subq	$56, %rsp
+ 	movq	%rdi, -*(%rbp)
+ 	movq	%rsi, -*(%rbp)
+-	movq	%rdx, -*(%rbp)
+ 	movq	-*(%rbp), %rax
+ 	movq	(%rax), %rax
+ 	movq	%rax, -*(%rbp)
+ 	movq	$0, -*(%rbp)
+ 	jmp	.L55                    #skok na hlavicku for cyklu
+ .L58:                        #zacatek tela for cyklu
+ 	movq	-*(%rbp), %rax
+ 	cmpq	-*(%rbp), %rax
+ 	jne	.L56
+ 	movq	-*(%rbp), %rax
+-	movl	(%rax), %edx
+-	movq	-40(%rbp), %rax
+-	movl	%edx, (%rax)
+-	movl	$1, %eax              #return true
+-	jmp	.L57                    #kthxbai
++	addq	$56, %rsp             #uvolnit stack
++	popq	%rbx                  #...
++	popq	%r12
++	popq	%r13
++	popq	%rbp
++	ret                         #kthxbai
+ .L56:
+ 	movq	-*(%rbp), %rax        #
+ 	movq	8(%rax), %rax         # n = n->next
+ 	movq	%rax, -*(%rbp)        #
+ 	addq	$1, -*(%rbp)          #i++
+ .L55:                        #hlavicka for cyklu
+ 	cmpq	$0, -*(%rbp)
+ 	setne	%al
+ 	testb	%al, %al
+ 	jne	.L58
+-	movl	$0, %eax              #return false
+-.L57:
+-	popq	%rbp
+-	ret                         #kthxbai
++
++       #tato cela cast je v podstate throw vyjimky
++       #i s najitim a zavolanim zpracovavaci rutiny
++
++	movl	$16, %edi
++	call	__cxa_allocate_exception
++	movq	%rax, %rbx
++	leaq	-49(%rbp), %rax
++	movq	%rax, %rdi
++	call	_ZNSaIcEC1Ev
++	leaq	-49(%rbp), %rdx
++	leaq	-64(%rbp), %rax
++	movl	$.LC2, %esi
++	movq	%rax, %rdi
++	call	_ZNSsC1EPKcRKSaIcE
++	leaq	-64(%rbp), %rax
++	movq	%rax, %rsi
++	movq	%rbx, %rdi
++	call	_ZN2ExC1ERKSs
++	leaq	-64(%rbp), %rax
++	movq	%rax, %rdi
++	call	_ZNSsD1Ev
++	leaq	-49(%rbp), %rax
++	movq	%rax, %rdi
++	call	_ZNSaIcED1Ev
++	movl	$_ZN2ExD1Ev, %eax
++	movq	%rax, %rdx
++	movl	$_ZTI2Ex, %esi
++	movq	%rbx, %rdi
++	call	__cxa_throw
++.L52:
++	movq	%rax, %r13
++	movq	%rdx, %r12
++	leaq	-64(%rbp), %rax
++	movq	%rax, %rdi
++	call	_ZNSsD1Ev
++	jmp	.L48
++.L51:
++	movq	%rax, %r13
++	movq	%rdx, %r12
++.L48:
++	leaq	-49(%rbp), %rax
++	movq	%rax, %rdi
++	call	_ZNSaIcED1Ev
++	movq	%rbx, %rdi
++	call	__cxa_free_exception
++	movq	%r13, %rax
++	movq	%r12, %rdx
++	jmp	.L49
++.L53:
++.L49:
++	cmpq	$-1, %rdx
++	je	.L50
++	movq	%rax, %rdi
++	call	_Unwind_Resume
++.L50:
++	movq	%rax, %rdi
++	call	__cxa_call_unexpected
++	.section	.gcc_except_table
++	.align 4
++	.byte	0xff
++	.byte	0x3
++	.uleb128 .LLSDATT1079-.LLSDATTD1079
++	.byte	0x1
++	.uleb128 .LLSDACSE1079-.LLSDACSB1079
++	.uleb128 .LEHB14-.LFB1079
++	.uleb128 .LEHE14-.LEHB14
++	.uleb128 .L51-.LFB1079
++	.uleb128 0x3
++	.uleb128 .LEHB15-.LFB1079
++	.uleb128 .LEHE15-.LEHB15
++	.uleb128 .L52-.LFB1079
++	.uleb128 0x3
++	.uleb128 .LEHB16-.LFB1079
++	.uleb128 .LEHE16-.LEHB16
++	.uleb128 .L53-.LFB1079
++	.uleb128 0x1
++	.uleb128 .LEHB17-.LFB1079
++	.uleb128 .LEHE17-.LEHB17
++	.uleb128 0
++	.uleb128 0
++	.byte	0x7f
++	.byte	0
++	.byte	0
++	.byte	0x7d
++	.align 4
++	.long	_ZTI2Ex
++	.byte	0x1
++	.byte	0
++
++
++	# catch blok:
++
++	movq	%rax, %rdi
++	call	__cxa_begin_catch
++	movq	%rax, -48(%rbp)
++	addl	$1, -20(%rbp)
++	call	__cxa_end_catch
++	jmp	.L82        #skok zpet na kod nasledujici catch
